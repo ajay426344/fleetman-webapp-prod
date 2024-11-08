@@ -1,0 +1,36 @@
+version: "3"
+
+services:
+  fleetman-webapp:
+    image: ajaykumar426344/fleetman-webapp:production
+    networks:
+      - fleetman-network
+    ports:
+      - "80:8080"
+    depends_on:
+      - database
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  database:
+    image: mysql:5
+    networks:
+      - fleetman-network
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}  # Use .env for sensitive info
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  fleetman-network:
+    driver: bridge
+
